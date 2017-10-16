@@ -5,6 +5,7 @@ import xlrd
 import json
 import math
 import Util
+import TypeCheckers
 
 
 class DropTextBroswer(QTextBrowser):
@@ -101,42 +102,78 @@ class XLSXDecoder(object):
             cInterfaces = cfgRow[7].split(",")
         if (cfgRow[8]):
             sInterfaces = cfgRow[8].split(",")
-        defines = [];
-        defines.append(None)
-        #前端是否解析此数据
+        defines = {}
+
+        cdatas = []
+        sdatas = []
+        # 前端是否解析此数据
         clientRow = data.row_values(rowCfgLines["clientRow"]);
-        #后端是否解析此数据
+        # 后端是否解析此数据
         serverRow = data.row_values(rowCfgLines["serverRow"]);
         defaultRow = data.row_values(rowCfgLines["defaultRow"]) or [];
-        #类型列
+        # 类型列
         typeRow = data.row_values(rowCfgLines["typeRow"]);
-        #描述列
+        # 描述列
         desRow = data.row_values(rowCfgLines["desRow"]);
-        #属性名称列
+        # 属性名称列
         nameRow = data.row_values(rowCfgLines["nameRow"]);
         max = 0;
-        #checkers = TypeCheckers;
+        checkers = TypeCheckers.checkers;
         for key in range(len(nameRow)):
             col = +key
-            if(col!=0):
+            if (col != 0):
                 client = +int(clientRow[col] or 0);
                 server = +int(serverRow[col] or 0);
                 type = typeRow[col] or "";
-                #checker = checkers[type];
+                checker = checkers[type];
                 desc = "" + desRow[col];
                 name = "" + nameRow[col];
                 default = defaultRow[col];
-                defines.append( {"client": client, "server": server, "name": name, "desc": desc,"default" : default })
+                defines[col] = {"client": client, "server": server, "name": name, "desc": desc, "default": default,
+                                "checker": checker}
                 if (col > max):
                     max = col;
 
-        #从第9行开始，是正式数据
-        for row in range(dataRowStart,data.nrows):
+        # 从第9行开始，是正式数据
+        for row in range(dataRowStart, data.nrows):
+            print(row)
             rowData = data.row_values(row)
             col1 = rowData[0]
-            if ~col1 or col1.charAt(0) != "!":
-                #先做空行检查，减少误报信息
-                flag = False;
+            # if ~col1or col1.charAt(0) != "!":
+            # 先做空行检查，减少误报信息
+            flag = False;
+            for col in range(1, max + 1):
+                cell = rowData[col];
+                if (col in defines):
+                    df = defines[col]
+                    if df["client"] or df["server"]:
+                        flag = True;
+                        break;
+            if flag:
+                cRow = []
+                sRow = []
+                for col in range(1, max + 1):
+                    try:
+                        if (col in defines):
+                            df = defines[col]
+                            cell = rowData[col]
+                            tmp = dir(df["checker"])
+                            dat = df["checker"].check(cell or "");
+                            if df["client"]:
+                                cRow.append(dat)
+                            if df["server"]:
+                                sRow.append(dat)
+                        else:
+                            continue;
+                    except Exception as err:
+                        print("解析{0}第{1}行，第{2}列数据有误：{3}", fname, row + 1, col, err.message)
+
+                if(len(cRow)):
+                    cdatas.append(cRow)
+                if (len(sRow)):
+                    sdatas.append(sRow)
+
+
 
 def excel_table(file):
     filename = (os.path.split(file)[1]).split(".")[0]
