@@ -7,6 +7,13 @@ import math
 import Util
 import TypeCheckers
 import WriteJSONData
+from datetime import datetime
+import MenualCodeHelper
+
+# 全局变量
+defines = {}
+cSuper = ""
+cInterfaces = []
 
 
 class DropTextBroswer(QTextBrowser):
@@ -46,8 +53,8 @@ class Example(QWidget):
         self.initUI()
 
     def initUI(self):
-        button = DropTextBroswer(self)
-        button.move(190, 65)
+        self._button = DropTextBroswer(self)
+        self._button.move(190, 65)
 
         self.setGeometry(300, 300, 600, 300)
         self.setWindowTitle('简单拖放')
@@ -103,7 +110,7 @@ class XLSXDecoder(object):
             cInterfaces = cfgRow[7].split(",")
         if (cfgRow[8]):
             sInterfaces = cfgRow[8].split(",")
-        defines = {}
+        defines.clear()
 
         cdatas = []
         sdatas = []
@@ -131,13 +138,13 @@ class XLSXDecoder(object):
                 name = "" + nameRow[col];
                 default = defaultRow[col];
                 defines[col] = {"client": client, "server": server, "name": name, "desc": desc, "default": default,
-                                "checker": checker}
+                                "checker": checker, "type": type}
                 if (col > max):
                     max = col;
 
         # 从第9行开始，是正式数据
         for row in range(dataRowStart, data.nrows):
-            print(row)
+            # print(row)
             rowData = data.row_values(row)
             col1 = rowData[0]
             # if ~col1or col1.charAt(0) != "!":
@@ -169,15 +176,71 @@ class XLSXDecoder(object):
                     except Exception as err:
                         print("解析{0}第{1}行，第{2}列数据有误：{3}", fname, row + 1, col, err.message)
 
-                if(len(cRow)):
+                if (len(cRow)):
                     cdatas.append(cRow)
                 if (len(sRow)):
                     sdatas.append(sRow)
-        writeData(cdatas,sdatas,fname,gcfg)
+        writeData(cdatas, sdatas, fname, gcfg)
 
-def writeData(cdatas,sdatas,fname,gcfg):
+
+def writeData(cdatas, sdatas, fname, gcfg):
+    fname = fname.split(".")[0]
     if len(cdatas):
-        cpath = WriteJSONData.writeJson(fname.split(".")[0], gcfg["clientPath"], cdatas);
+        cpath = WriteJSONData.writeJson(fname, gcfg["clientPath"], cdatas);
+        if cpath:
+            print("文件%s，将客户端数据保存至：%s" % (fname, cpath))
+        else:
+            print("文件%s，未将客户端数据保存到：%s,请检查" % (fname, cpath))
+
+    cPros = ""
+    cDecode = ""
+    cout = ""
+    hasClocal = False
+    for k in defines:
+        define = defines[k]
+        checker = define["checker"]
+        pro = '''
+        \t\t\t / **
+        \t\t\t*%s
+        \t\t\t**/
+        \t\t\t%s:%s
+        ''' % (define["desc"], define["name"], define["type"])
+        # print(pro)
+        decode = ""
+        default = ""
+        if define["default"]:
+            default = define["default"]
+        decode = "\t\t\t@target@.%s = data[i++]%s}" % (define["name"], "||" + default if default else"")
+        # print(decode)
+        client = define["client"]
+        tmp = ""
+        if client:
+            if client == 1:
+                cPros += pro
+                tmp = decode.replace("@target@", "this")
+            elif client == 2:
+                hasClocal = True
+                tmp = decode.replace("@target@", "local")
+            cDecode += tmp
+    # temp path todo
+    path = os.path.join(os.path.split(cpath)[0], "", fname + "Cfg.ts")
+    cdict = MenualCodeHelper.getManualCodeInfo(path);
+    createTime = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    # 生成客户端代码
+    if cPros:
+        cout = '''
+         /**
+        * 由junyouH5数据生成工具，从%s生成
+        * 创建时间：%s
+        **/
+         export class %sCfg%s%s {
+         %s
+         %s
+        ''' % (cpath, createTime, fname, " extends" + cSuper if cSuper else "",
+               " implements" + (",".join(cInterfaces)) if len(cInterfaces) else "", cPros,
+               MenualCodeHelper.genManualAreaCode("$area2",cdict))
+        print(cout)
+
 
 def excel_table(file):
     filename = (os.path.split(file)[1]).split(".")[0]

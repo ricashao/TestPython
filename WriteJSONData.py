@@ -16,5 +16,5 @@ def writeJson(fname, directory, data):
             output.write(js)
             output.close()
             return outpath
-
+    return None
 #writeJSONData("test","//192.168.1.4/chuanqi.com/web/config/zhcn/trunk/raw","")

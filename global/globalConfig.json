@@ -1,6 +1,6 @@
 {
 	"project":"chuanqi",
-	"clientPath":"F://mygit/TestPython//jsons",
+	"clientPath":"F://mygit/TestPython/jsons",
 	"serverPath":"",
 	"clientRegClass":["GConfig","chuanqi"],
 	"endAction":"http://192.168.1.4:1212/D:/web/chuanqi.com/utils/pakData.js"
