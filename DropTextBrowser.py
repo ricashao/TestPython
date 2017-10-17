@@ -6,6 +6,7 @@ import json
 import math
 import Util
 import TypeCheckers
+import WriteJSONData
 
 
 class DropTextBroswer(QTextBrowser):
@@ -172,8 +173,11 @@ class XLSXDecoder(object):
                     cdatas.append(cRow)
                 if (len(sRow)):
                     sdatas.append(sRow)
+        writeData(cdatas,sdatas,fname,gcfg)
 
-
+def writeData(cdatas,sdatas,fname,gcfg):
+    if len(cdatas):
+        cpath = WriteJSONData.writeJson(fname.split(".")[0], gcfg["clientPath"], cdatas);
 
 def excel_table(file):
     filename = (os.path.split(file)[1]).split(".")[0]
