@@ -220,8 +220,7 @@ def writeData(cdatas, sdatas, fname, gcfg, cSuper, sSuper, cfilePackage, sfilePa
     createTime = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     # 生成客户端代码
     if cPros:
-        cout = '''
-        module lingyu.%s{
+        cout = '''module lingyu.%s{
         %s
          /**
         * 由junyouH5数据生成工具，从%s生成
