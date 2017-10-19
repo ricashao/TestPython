@@ -10,6 +10,7 @@ import WriteJSONData
 from datetime import datetime
 import MenualCodeHelper
 from ClientRegTemplate import ClientRegTemplate
+import configparser
 
 # 全局变量
 defines = {}
@@ -22,6 +23,18 @@ class Main(QtWidgets.QMainWindow, Ui_MainWindow):
         super(Main, self).__init__()
         self.setupUi(self)
         self.setAcceptDrops(True)
+        self.readIni()
+
+    def closeEvent(self, event):
+        configIniRead = configparser.ConfigParser()
+        configIniRead.read("config.ini")
+        configIniRead.set("Config","clientpath",self.txtClientPath.text())
+        configIniRead.write(open("config.ini", "w"))
+
+    def readIni(self):
+        configIniRead = configparser.ConfigParser()
+        configIniRead.read("config.ini")
+        self.txtClientPath.setText(configIniRead.get("Config","clientpath"))
 
     def dragEnterEvent(self, e):
         url = e.mimeData().urls()[0]
