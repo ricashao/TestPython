@@ -48,9 +48,6 @@ def genManualAreaCode(key, cinfo):
         /*-*end %s*-*/
     '''%(key,manual,key)
 
-def test():
-    print(re.match(r'^\d{3}\-\d{3,8}$', '010-123459'))
-
 
 # test()
 #getManualCodeInfo("F://mygit/TestPython/jsons/ShouChongCfg.ts")

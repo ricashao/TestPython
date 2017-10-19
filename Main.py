@@ -9,6 +9,7 @@ import TypeCheckers
 import WriteJSONData
 from datetime import datetime
 import MenualCodeHelper
+from ClientRegTemplate import ClientRegTemplate
 
 # 全局变量
 defines = {}
@@ -247,8 +248,13 @@ def writeData(cdatas, sdatas, fname, gcfg, cSuper, sSuper, cfilePackage, sfilePa
                MenualCodeHelper.genManualAreaCode("$area3", cdict))
     saveCodeFile(clientPath, cfilePackage, cout, fname + "Cfg")
     #尝试生成注册文件
-
-
+    if (clientPath and cout and gcfg["clientRegClass"]):
+        clientReg = ClientRegTemplate();
+        [cerr,crout] = clientReg.addToFile(os.path.join(clientPath, gcfg["clientRegClass"][1]+"/"+ gcfg["clientRegClass"][0] + ".ts"),fname,"lingyu."+gcfg["project"])
+        if (cerr) :
+            print(cerr);
+        else:
+            saveCodeFile(clientPath, "/"+gcfg["clientRegClass"][1], crout, gcfg["clientRegClass"][0]);
 
 def saveCodeFile(dir, filePackage, content, fname):
     if not (content):
