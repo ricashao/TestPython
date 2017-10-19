@@ -52,21 +52,65 @@ class ClientRegTemplate(object):
             extlist = res
         return [None, addContent(key, interfaceDic, valueDic, regDic, pak, extlist)];
 
-#添加内容
+
+# 添加内容
 def addContent(key, interfaceDic, valueDic, regDic, pak, extlist, hasExtra):
     added = False
     code = '''module lingyu.game {
         \texport interface IConfigKey {
         
     '''
-    for k,v in interfaceDic:
+    for k, v in interfaceDic:
         if k == key:
             added = True
-        code +='''\t\t%s\n'''%(v)
-        if not(added):
-            code += '''\t\t%s: string;\n'''%(k)
+        code += '''\t\t%s:string\n''' % (v)
+    if not (added):
+        code += '''\t\t%s:string;\n''' % (key)
     code += "\t}"
+    added = False
+    code += "\tConfigKey = {"
 
+    for k, v in valueDic:
+        if k == key:
+            add = True
+        code += '''\t\t%s: "%s",\n''' % (k, v)
+
+    if not (added):
+        code += '''\t\t%s: "%s",\n''' % (key, key)
+    code +='''\t}
+    \tfunction rP(key: string, CfgCreator: { new (): ICfg }, idkey: string = "id") {
+    \t\tDataLocator.regCommonParser(key, CfgCreator, idkey);
+    \t}
+    \tfunction rE(key: string) {
+    \t\tDataLocator.regExtra(key);
+    \t}
+    \texport function initData() {
+    \t\tvar C = ConfigKey;
+    \t\tvar P = %s;
+    '''%(pak)
+
+    added = False
+    for k,v in regDic:
+        if k==key:
+            added = True
+        idKey = ", " + v[1] if v[1] != None else ""
+        code += '''\t\trP(C.%s, %s%s);\n'''%(k,v[0],idKey)
+    if not(added):
+        code += '''\t\trP(C.%s, %sCfg);\n''' % (key, key)
+    code += "\n"
+    added = False
+    #附加数据
+    for i in extlist:
+        k = extlist[i]
+        if(k == key):
+            added = True
+        code += '''\t\trE(C.%s);\n'''%(k)
+    if not(added):
+        code += '''\t\trE(C.%s);\n''' % (key)
+    code += "\t}"
     print(code)
+    return code
+
+
 client = ClientRegTemplate()
 client.addToFile("F:\workspace\client\Client\src\chuanqi\GConfig.ts", "", "")
