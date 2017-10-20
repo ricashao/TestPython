@@ -198,6 +198,7 @@ def writeData(cdatas, sdatas, fname, gcfg, cSuper, sSuper, cfilePackage, sfilePa
         else:
             print("文件%s，未将客户端数据保存到：%s,请检查" % (fname, cpath))
 
+
     cPros = ""
     cDecode = ""
     cout = ""
@@ -268,6 +269,13 @@ def writeData(cdatas, sdatas, fname, gcfg, cSuper, sSuper, cfilePackage, sfilePa
             print(cerr);
         else:
             saveCodeFile(clientPath, "/"+gcfg["clientRegClass"][1], crout, gcfg["clientRegClass"][0]);
+            cfgs = Util.getRemoteCfgs("//192.168.1.4/chuanqi.com/web/config/zhcn/trunk/cfgs.json")
+            cfgs[fname] = cdatas
+            import json
+            output = open("//192.168.1.4/chuanqi.com/web/config/zhcn/trunk/cfgs.json", 'w+', buffering=2048, encoding='utf8')
+            js = json.dumps(cfgs, separators=(',', ':'), ensure_ascii=False);
+            output.write(js)
+            output.close()
 
 def saveCodeFile(dir, filePackage, content, fname):
     if not (content):
