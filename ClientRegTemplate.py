@@ -56,20 +56,19 @@ class ClientRegTemplate(object):
     # 添加内容
     def addContent(self,key, interfaceDic, valueDic, regDic, pak, extlist):
         added = False
-        code = '''module lingyu.game {
-            \texport interface IConfigKey {
-            
+        code = '''module core.game {
+    export interface IConfigKey {     
         '''
 
         for k, v in interfaceDic.items():
             if k == key:
                 added = True
-            code += '''\t\t%s:string\n''' % (v)
+            code += '''%s:string\n''' % (v)
         if not (added):
-            code += '''\t\t%s:string;\n''' % (key)
-        code += "\t}"
+            code += '''%s:string;\n''' % (key)
+        code += "\t}\n"
         added = False
-        code += "\tConfigKey = {"
+        code += "\tConfigKey = {\n"
 
         for k, v in valueDic.items():
             if k == key:
@@ -79,30 +78,30 @@ class ClientRegTemplate(object):
         if not (added):
             code += '''\t\t%s: "%s",\n''' % (key, key)
         code +='''\t}
-        \tfunction rP(key: string, CfgCreator: { new (): ICfg }, idkey: string = "id") {
-        \t\tDataLocator.regCommonParser(key, CfgCreator, idkey);
-        \t}
-        \tfunction rE(key: string) {
-        \t\tDataLocator.regExtra(key);
-        \t}
-        \texport function initData() {
-        \t\tvar C = ConfigKey;
-        \t\tvar P = %s;
-        '''%(pak)
+    function rP(key: string, CfgCreator: { new (): ICfg }, idkey: string = "id") {
+    \tDataLocator.regCommonParser(key, CfgCreator, idkey);
+    }
+    function rE(key: string) {
+    \tDataLocator.regExtra(key);
+    }
+    export function initData() {
+    \tvar C = ConfigKey;
+    \tvar P = %s;
+    '''%(pak)
 
         added = False
         for k,v in regDic.items():
             if k==key:
                 added = True
             idKey = ", " + v[1] if v[1] != "" else ""
-            code += '''\t\trP(C.%s, %s%s);\n'''%(k,v[0],idKey)
+            code += '''\trP(C.%s, %s%s);\n'''%(k,v[0],idKey)
         if not(added):
-            code += '''\t\trP(C.%s, %sCfg);\n''' % (key, key)
+            code += '''\trP(C.%s, %sCfg);\n''' % (key, key)
         code += "\n"
         added = False
         #附加数据
         for k in extlist:
-            code += '''\t\trE(C.%s);\n'''%(k)
+            code += '''rE(C.%s);\n'''%(k)
         #if not(added):
         #    code += '''\t\trE(C.%s);\n''' % (key)
         code += '''\t}

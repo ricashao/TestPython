@@ -1,7 +1,7 @@
 {
-	"project":"chuanqi",
-	"clientPath":"F://mygit/TestPython/jsons",
+	"project":"game",
+	"clientPath":"D://PycharmProjects/TestPython/jsons",
 	"serverPath":"",
-	"clientRegClass":["GConfig","chuanqi"],
+	"clientRegClass":["GConfig","game"],
 	"endAction":"http://192.168.1.4:1212/D:/web/chuanqi.com/utils/pakData.js"
 }
