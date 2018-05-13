@@ -285,12 +285,14 @@ def saveCodeFile(dir, filePackage, content, fname):
         dir = dir.replace('\\','/')
         fullPath = dir+filePackage
         if fullPath:
-            if os.path.exists(fullPath):
-                if os.path.isdir(fullPath):
-                    file = os.path.join(fullPath,fname)
-                    output = open(file, 'w+', buffering=2048,encoding='utf8')
-                    output.write(content)
-                    output.close()
+            if not os.path.exists(fullPath):
+                os.makedirs(fullPath)
+            if os.path.isdir(fullPath):
+                file = os.path.join(fullPath,fname)
+                output = open(file, 'w+', buffering=2048,encoding='utf8')
+                output.write(content)
+                output.close()
+
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
