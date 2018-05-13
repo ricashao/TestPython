@@ -235,7 +235,7 @@ def writeData(cdatas, sdatas, fname, gcfg, cSuper, sSuper, cfilePackage, sfilePa
     createTime = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     # 生成客户端代码
     if cPros:
-        cout = '''module core.%s{
+        cout = '''module shao.%s{
         %s
          /**
         * 由junyouH5数据生成工具，从%s生成
@@ -264,15 +264,15 @@ def writeData(cdatas, sdatas, fname, gcfg, cSuper, sSuper, cfilePackage, sfilePa
     #尝试生成注册文件
     if (clientPath and cout and gcfg["clientRegClass"]):
         clientReg = ClientRegTemplate();
-        [cerr,crout] = clientReg.addToFile(os.path.join(clientPath, gcfg["clientRegClass"][1]+"/"+ gcfg["clientRegClass"][0] + ".ts"),fname,"core."+gcfg["project"])
+        [cerr,crout] = clientReg.addToFile(os.path.join(clientPath, gcfg["clientRegClass"][1]+"/"+ gcfg["clientRegClass"][0] + ".ts"),fname,"shao."+gcfg["project"])
         if (cerr) :
             print(cerr);
         else:
             saveCodeFile(clientPath, "/"+gcfg["clientRegClass"][1], crout, gcfg["clientRegClass"][0]);
-            cfgs = Util.getRemoteCfgs("D://gitworkspace/SFramework/resource/data/cfgs.json")
+            cfgs = Util.getRemoteCfgs("D://gitworkspace/SFramework/resource/remote/data/cfgs.json")
             cfgs[fname] = cdatas
             import json
-            output = open("D://gitworkspace/SFramework/resource/data/cfgs.json", 'w+', buffering=2048, encoding='utf8')
+            output = open("D://gitworkspace/SFramework/resource/remote/data/cfgs.json", 'w+', buffering=2048, encoding='utf8')
             js = json.dumps(cfgs, separators=(',', ':'), ensure_ascii=False);
             output.write(js)
             output.close()

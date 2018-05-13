@@ -56,7 +56,7 @@ class ClientRegTemplate(object):
     # 添加内容
     def addContent(self,key, interfaceDic, valueDic, regDic, pak, extlist):
         added = False
-        code = '''module core.game {
+        code = '''module shao.game {
     export interface IConfigKey {     
         '''
 
